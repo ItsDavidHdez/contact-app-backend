@@ -43,7 +43,10 @@ export const registerUser = async (req, res) => {
   newUser.password = await newUser.encryptPassword(password);
   await newUser.save();
 
-  const token = jwt.sign({ _id: newUser._id }, process.env.SECRETKEY);
+  const token = jwt.sign(
+    { _id: newUser._id },
+    process.env.SECRETKEY || "secretKey"
+  );
   res.status(200).json({ token });
 };
 
@@ -55,7 +58,10 @@ export const loginUser = async (req, res) => {
   console.log(match, password);
   if (!match) return res.status(401).send("Wrong password");
 
-  const token = jwt.sign({ _id: user._id }, process.env.SECRETKEY);
+  const token = jwt.sign(
+    { _id: user._id },
+    process.env.SECRETKEY || "secretKey"
+  );
   return res.status(200).json({ token });
 };
 
@@ -70,7 +76,7 @@ export function verifyToken(req, res, next) {
     return res.status(401).send("Unathorize request");
   }
 
-  const payload = jwt.verify(token, process.env.SECRETKEY);
+  const payload = jwt.verify(token, process.env.SECRETKEY || "secretKey");
   req.userId = payload._id;
   next();
 }
